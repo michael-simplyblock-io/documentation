@@ -11,9 +11,13 @@ requirements are elaborated below, whether deployed on a private or public cloud
 The following sizing information is meant for production environments.
 
 !!! warning
-    Simplyblock always recommends using physical cores over virtual and hyper-threading cores. If the sizing document
-    discusses virtual CPUs (vCPU), it means 0.5 physical CPUs. This corresponds to a typical hyper-threaded CPU core
-    x86-64. This also relates to how AWS EC2 cores are measured.
+    Below we refer to a vcpu as either a hyper-thread (typical for x64) or a single core (typical for arm).
+    If hyper-threading is enabled on x64 architectures, ensure that both hyper-threads belonging to a single physical 
+    core are assigned to a storage node vm in case you are using a virtualized environment (in clouds such as aws this 
+    is always the case). For some of the hyper- threads, the second counterpart has to remain unused by the operating 
+    system. This is automatically the case for disaggregated deployments as the simplyblock deployment configures core 
+    isolation. In hyper-converged deployments, a tool is available to configure core isolation [...], but it must be 
+    persistenly applied (added to GRUB) by a system administrator.   
 
 ## Management Nodes
 
@@ -25,7 +29,7 @@ The following hardware sizing specifications are recommended:
 
 | Hardware        |                                                                                                                             |
 |-----------------|-----------------------------------------------------------------------------------------------------------------------------|
-| CPU             | Minimum 2 physical cores, plus<ul><li>1 vCPU per 5 storage nodes</li><li>1 vCPU 500 logical volumes</li></ul>               |
+| CPU             | Minimum 4 vcpus, plus<ul><li>1 vCPU per 5 storage nodes</li><li>1 vCPU 500 logical volumes</li></ul>               |
 | RAM             | Minimum 8 GiB, plus:<ul><li>1 GiB RAM per 5 storage nodes</li><li>1 GiB per 500 logical volumes</li></ul>                   |
 | Disk            | Minimum 35 GiB, plus:<ul><li>500 MiB per 100 cluster objects (storage nodes, devices, logical volumes, snapshots)</li></ul> |
 | Node type       | Bare metal or virtual machine with a supported Linux distribution                                                           |
@@ -40,7 +44,7 @@ The following hardware sizing specifications are recommended:
 
 | Hardware |                                                                                                                                                                                                                                                                                                   |
 |----------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| CPU      | Minimum 4 physical cores.<br/>3 cores are dedicated to service threads.<br/>Additionally, available cores are allocated to worker threads. Each additional core contributes about 200.000 IOPS to the node's performance profile (disregarding other limiting factors such as network bandwidth). |
+| CPU      | Minimum 8 vcpus.<br/>3 vcpus are dedicated to service threads.<br/>Additionally, available cores are allocated to worker threads. Each additional vcpu contributes about 100.000 IOPS to the node's performance profile (disregarding other limiting factors such as network bandwidth). |
 | RAM      | Minimum 4 GiB (for operating system)                                                                                                                                                                                                                                                              |
 | Disk     | Minimum 5 GiB boot volume                                                                                                                                                                                                                                                                         |
 
@@ -60,7 +64,7 @@ amount of storage available in the cluster and the maximum amount of logical vol
 
 | Unit                           | Memory Requirement |
 |--------------------------------|--------------------|
-| Per logical volume             | 6 MiB              |
+| Per logical volume             | 25 MiB             |
 | Per TB of max. cluster storage | 256 MiB            |
 
 !!! recommendation
